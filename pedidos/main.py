@@ -230,7 +230,7 @@ def agregar_color(colores, id_articulo):
 def modificar_articulos(_pedidos, nro_pedido):
     print("\n\t\tArtículos actuales: ")
     productos = _pedidos[nro_pedido]['productos']
-    print(json.dumps(productos, indent=4, ensure_ascii=False))
+    print(json.dumps(productos, indent=4))
     codigo = input("Ingrese el código del producto a modificar: ")
     if codigo in productos.keys():
         id_articulo = "1" if codigo == "1334" else "2"
@@ -258,7 +258,6 @@ def modificar_pedido(_pedidos: dict):
         print(", ".join(f"[{key}]" for key in _pedidos.keys()))
         nro_pedido = input("\n\tIngrese el número de pedido a modificar: ")
         if nro_pedido in _pedidos.keys():
-            print(json.dumps(_pedidos[nro_pedido], indent=4, ensure_ascii=False))
             opcion_modificar = ''
             while opcion_modificar != '6':
                 opcion_modificar = leer_opcion(["Fecha", "Cliente", "Ciudad", "Provincia", "Productos", "Salir"])
@@ -279,7 +278,7 @@ def modificar_pedido(_pedidos: dict):
 
 
 def eliminar_pedido(_pedidos):
-    print(json.dumps(_pedidos, indent=4, ensure_ascii=False))
+    print(json.dumps(_pedidos, indent=4))
     nro_pedido = input("\n\t\tIngrese el número de órden a eliminar: ")
     if nro_pedido in _pedidos.keys():
         del _pedidos[nro_pedido]
@@ -289,7 +288,7 @@ def eliminar_pedido(_pedidos):
 
 def listar_pedidos(_pedidos):
     if len(_pedidos) > 0:
-        print(json.dumps(_pedidos, indent=4, ensure_ascii=False))
+        print(json.dumps(_pedidos, indent=4))
     else:
         print("\n\t\tNo existen pedidos cargados actualmente.")
 
