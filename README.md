@@ -3,8 +3,6 @@ Contiene un archivo principal para probar el reconocimiento de imágenes utiliza
 
 Para que todo funcione, modifiquen la ruta de sus archivos .jpg para que la función los pueda leer.
 
-Por ahora está leyendo e imprimiendo por consola. Lo puedo llegar a modificar para que retorne directamente las listas con cuantas botellas y vasos hay (por color) 
-
 # Pedidos
 Contiene un archivo principal para la lectura de pedidos desde un archivo .csv y la posibiliad de crear, modificar y eliminar pedidos
 
