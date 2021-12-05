@@ -73,12 +73,12 @@ def verify_color(filtered_image, net, ln):
     return False
 
 
-def initialize_network():
+def initialize_network(folder_path: dir):
     # Load names of classes and get random colors
-    classes = open('TP_Arch_config/coco.names').read().strip().split('\n')
+    classes = open(f'{folder_path}/coco.names').read().strip().split('\n')
 
     # Give the configuration and weight files for the model and load the network.
-    net = cv.dnn.readNetFromDarknet('TP_Arch_config/yolov3.cfg', 'TP_Arch_config/yolov3.weights')
+    net = cv.dnn.readNetFromDarknet(f'{folder_path}/yolov3.cfg', f'{folder_path}/yolov3.weights')
     net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
@@ -89,9 +89,12 @@ def initialize_network():
     return classes, net, ln
 
 
-def load_images():
-    folder_path = "TP_Arch_config/Lote0001"
-    filenames = [f'{folder_path}/{fn}' for fn in os.listdir(folder_path) if fn.endswith('.jpg')]
+def load_images(folder_path: str):
+    if os.path.exists(folder_path):
+        filenames = [f'{folder_path}/{fn}' for fn in os.listdir(folder_path) if fn.endswith('.jpg')]
+    else:
+        raise FileNotFoundError
+
     images = []
     for file in filenames:
         img: np.ndarray = cv.imread(file)
@@ -132,24 +135,30 @@ def add_item(obj_dict, color):
             obj_dict[color] += 1
 
 
-def main():
-    classes, net, ln = initialize_network()
-
-    images = load_images()
+def get_stock():
+    config_path = "Config"
+    images_path = f"{config_path}/Lote0001"
     bottles: dict = {}
     cups: dict = {}
-    print("\n\t\tLoading...\n")
-    for img in images:
-        object_name, color = get_object_info(classes, img[1], ln, net)
-        if object_name == 'bottle':
-            add_item(bottles, color)
-        elif object_name == 'cup':
-            add_item(cups, color)
-        elif object_name == 'cat':
-            print("\n\t\tDANGER! There is a cat on the conveyor belt!!!")
-            input("\n\tPress ENTER to continue...")
-    print(bottles)
-    print(cups)
-
-
-main()
+    try:
+        classes, net, ln = initialize_network(config_path)
+    except FileNotFoundError:
+        print(f"\n\t\tDirectory '{config_path}' not found.")
+    else:
+        try:
+            images = load_images(images_path)
+        except FileNotFoundError:
+            print(f"\n\t\tDirectory '{images_path}' not found.")
+        else:
+            print("\n\t\tLoading...\n")
+            for img in images:
+                print(f"\n\t\tProcessing {img[0]}")
+                object_name, color = get_object_info(classes, img[1], ln, net)
+                if object_name == 'bottle':
+                    add_item(bottles, color)
+                elif object_name == 'cup':
+                    add_item(cups, color)
+                elif object_name == 'cat':
+                    print("\n\t\tDANGER! There is a cat on the conveyor belt!!!")
+                    input("\n\tPress ENTER to continue...")
+    return bottles, cups

@@ -1,6 +1,6 @@
 
 *.names
 *.jpg
-logistik/TP_Arch_config/know_HSV.py
-logistik/TP_Arch_config/yolov3.cfg
-logistik/TP_Arch_config/yolov3.weights
+logistik/Config/know_HSV.py
+logistik/Config/yolov3.cfg
+logistik/Config/yolov3.weights
