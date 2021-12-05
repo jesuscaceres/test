@@ -113,31 +113,43 @@ def identify_color(img, ln, net):
     return color
 
 
-def process_item(classes, img, ln, net):
+def get_object_info(classes, img, ln, net):
+    color: str = ''
     object_name = recognize_object(img, classes, net, ln)
     if object_name not in ['bottle', 'cup']:
         img = cv.GaussianBlur(img, (5, 5), cv.BORDER_DEFAULT)
         object_name = recognize_object(img, classes, net, ln)
     if object_name in ['bottle', 'cup']:
         color = identify_color(img, ln, net)
-        print(f"It's a {object_name} of color {color}" if color is not None else "I don't know that color.")
-    elif object_name == 'cat':
-        print("It's a cat.")
-    elif object_name == 'cow':
-        print("It's a cow.")
-    elif object_name == 'dog':
-        print("It's a dog.")
-    else:
-        print(f"Is this a {object_name}." if object_name != 'Unknown' else "I don't know this object.")
+    return object_name, color
+
+
+def add_item(obj_dict, color):
+    if len(color) > 0:
+        if color not in obj_dict.keys():
+            obj_dict[color] = 1
+        else:
+            obj_dict[color] += 1
 
 
 def main():
     classes, net, ln = initialize_network()
 
     images = load_images()
+    bottles: dict = {}
+    cups: dict = {}
+    print("\n\t\tLoading...\n")
     for img in images:
-        print(img[0], end=' -> ')
-        process_item(classes, img[1], ln, net)
+        object_name, color = get_object_info(classes, img[1], ln, net)
+        if object_name == 'bottle':
+            add_item(bottles, color)
+        elif object_name == 'cup':
+            add_item(cups, color)
+        elif object_name == 'cat':
+            print("\n\t\tDANGER! There is a cat on the conveyor belt!!!")
+            input("\n\tPress ENTER to continue...")
+    print(bottles)
+    print(cups)
 
 
 main()
