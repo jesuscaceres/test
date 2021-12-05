@@ -77,13 +77,17 @@ def obtener_valor_no_negativo(campo: str):
     return valor
 
 
+def obtener_opciones_validas(lista_colores: list[str]) -> list[str]:
+    return list(map(lambda x: str(x), list(range(1, len(lista_colores) + 1))))
+
+
 def obtener_color_valido(opcion_articulo):
     colores_botella: list[str] = ["Verde", "Rojo", "Azul", "Negro", "Amarillo"]
     colores_vaso: list[str] = ["Negro", "Azul"]
     opcion_color: str = ''
     color: str = ''
     if opcion_articulo == "1":
-        opciones_validas = list(map(lambda x: str(x), list(range(1, len(colores_botella) + 1))))
+        opciones_validas = obtener_opciones_validas(colores_botella)
         while opcion_color not in opciones_validas:
             opcion_color = leer_opcion(colores_botella)
             if opcion_color in opciones_validas:
@@ -91,7 +95,7 @@ def obtener_color_valido(opcion_articulo):
             else:
                 print("\n\tIngrese una opción válida.")
     else:
-        opciones_validas = list(map(lambda x: str(x), list(range(1, len(colores_vaso) + 1))))
+        opciones_validas = obtener_opciones_validas(colores_vaso)
         while opcion_color not in opciones_validas:
             opcion_color = leer_opcion(colores_vaso)
             if opcion_color in opciones_validas:
