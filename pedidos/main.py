@@ -2,6 +2,13 @@ import json
 import csv
 from datetime import datetime
 
+# Precio en dólares
+PRECIO_BOTELLA = 15
+PRECIO_VASO = 8
+# Peso en gramos
+PESO_BOTELLA = 450
+PESO_VASO = 350
+
 
 def cargar_pedidos():
     with open('csv/pedidos.csv', newline='', encoding='utf-8') as archivo_csv:
@@ -21,11 +28,11 @@ def cargar_pedidos():
                     "productos": {
                         registro_actual[5]: {
                             str(registro_actual[6]).lower(): {
-                                "cantidad": int(registro_actual[7]),
-                                "descuento": float(registro_actual[8])
+                                "cantidad": int(registro_actual[7])
                             }
                         }
                     },
+                    "descuento": float(registro_actual[8]),
                     "enviado": False
                 }
             else:
@@ -34,14 +41,12 @@ def cargar_pedidos():
                 if codigo in productos.keys():
                     items = productos[codigo]
                     items[str(registro_actual[6]).lower()] = {
-                        "cantidad": int(registro_actual[7]),
-                        "descuento": float(registro_actual[8])
+                        "cantidad": int(registro_actual[7])
                     }
                 else:
                     productos[codigo] = {
                         str(registro_actual[6]).lower(): {
-                            "cantidad": int(registro_actual[7]),
-                            "descuento": float(registro_actual[8])
+                            "cantidad": int(registro_actual[7])
                         }
                     }
         return pedidos_archivo
@@ -66,15 +71,15 @@ def obtener_valor_positivo(campo: str):
     return valor
 
 
-def obtener_valor_no_negativo(campo: str):
+def obtener_valor_en_rango(campo: str, inicio: int, fin: int):
     valor = -1
-    while not valor >= 0:
+    while not (0 <= valor <= 100):
         try:
             valor = float(input(f"\n\t[*] {campo}: "))
-            if valor < 0:
+            if valor < inicio or valor > fin:
                 raise ValueError
         except ValueError:
-            print("\n\tValor incorrecto. Debe ingresar cero o un número positivo.")
+            print("\n\tValor incorrecto. Debe ingresar un valor entre 0 y 100 (inclusive).")
     return valor
 
 
@@ -142,19 +147,16 @@ def cargar_productos():
         codigo, opcion_articulo = obtener_articulo_valido()
         color = obtener_color_valido(opcion_articulo)
         cantidad = obtener_valor_positivo("Cantidad")
-        descuento = obtener_valor_no_negativo("Descuento")
 
         if codigo in productos.keys():
             items = productos[codigo]
             items[color] = {
-                "cantidad": cantidad,
-                "descuento": descuento
+                "cantidad": cantidad
             }
         else:
             productos[codigo] = {
                 color: {
-                    "cantidad": cantidad,
-                    "descuento": descuento
+                    "cantidad": cantidad
                 }
             }
         opcion = input("\n\tDesea agregar otro artículo? [S/N]  ").upper()
@@ -167,6 +169,7 @@ def crear_pedido(_pedidos: dict):
     ciudad: str = input("\n\t[*] Ciudad: ")
     provincia: str = input("\n\t[*] Provincia: ")
     productos = cargar_productos()
+    descuento = obtener_valor_en_rango("Descuento", 0, 100)
 
     nro_pedido = len(_pedidos) + 1
     _pedidos[str(nro_pedido)] = {
@@ -174,7 +177,8 @@ def crear_pedido(_pedidos: dict):
         "cliente": cliente,
         "ciudad": ciudad,
         "provincia": provincia,
-        "productos": productos
+        "productos": productos,
+        "descuento": descuento
     }
     print("\n\t\tNuevo pedido agregado correctamente.")
 
@@ -186,7 +190,7 @@ def modificar_campo(_dict, key, campo):
     elif campo == "cantidad":
         nuevo_valor = obtener_valor_positivo("Cantidad")
     elif campo == "descuento":
-        nuevo_valor = obtener_valor_no_negativo("Descuento")
+        nuevo_valor = obtener_valor_en_rango("Descuento", 0, 100)
     else:
         nuevo_valor = input("\n\t\tNuevo valor: ")
     _dict[key][campo] = nuevo_valor
@@ -205,13 +209,11 @@ def modificar_color(colores, id_articulo):
     color = obtener_color_valido(id_articulo)
     if color in colores.keys():
         opcion_campo = ''
-        while opcion_campo != '3':
-            opcion_campo = leer_opcion(["Cantidad", "Descuento", "Salir"])
+        while opcion_campo != '2':
+            opcion_campo = leer_opcion(["Cantidad", "Salir"])
             if opcion_campo == '1':
                 modificar_campo(colores, color, "cantidad")
             elif opcion_campo == '2':
-                modificar_campo(colores, color, "descuento")
-            elif opcion_campo == '3':
                 continue
             else:
                 print("\n\n\t\tIngrese una opción válida.")
@@ -225,7 +227,7 @@ def agregar_color(colores, id_articulo):
         print("\n\t\tYa existe este color.")
     else:
         cantidad = obtener_valor_positivo("Cantidad")
-        descuento = obtener_valor_no_negativo("Descuento")
+        descuento = obtener_valor_en_rango("Descuento", 0, 100)
         colores[color] = {
             "cantidad": cantidad,
             "descuento": descuento
@@ -264,8 +266,9 @@ def modificar_pedido(_pedidos: dict):
         nro_pedido = input("\n\tIngrese el número de pedido a modificar: ")
         if nro_pedido in _pedidos.keys():
             opcion_modificar = ''
-            while opcion_modificar != '6':
-                opcion_modificar = leer_opcion(["Fecha", "Cliente", "Ciudad", "Provincia", "Productos", "Salir"])
+            while opcion_modificar != '7':
+                opcion_modificar = leer_opcion(
+                    ["Fecha", "Cliente", "Ciudad", "Provincia", "Productos", "Descuento", "Salir"])
                 if opcion_modificar == '1':
                     modificar_campo(_pedidos, nro_pedido, "fecha")
                 elif opcion_modificar == '2':
@@ -276,6 +279,8 @@ def modificar_pedido(_pedidos: dict):
                     modificar_campo(_pedidos, nro_pedido, "provincia")
                 elif opcion_modificar == '5':
                     modificar_articulos(_pedidos, nro_pedido)
+                elif opcion_modificar == '6':
+                    modificar_campo(_pedidos, nro_pedido, "descuento")
         else:
             print("\n\t\tNo existe ningún pedido con ese número.")
     else:
@@ -316,30 +321,48 @@ def pedidos_abm(_pedidos: dict):
             print("\n\t\t'Por favor, ingrese una opción válida.")
 
 
-def obtener_valor_total_por_ciudad(_pedidos: dict, info: dict, ciudad: str):
+def imprimir_total(articulos_enviados, ciudad):
+    if len(articulos_enviados) > 0:
+        print(f"\n\t\t\tSe enviaron los siguientes artículos a la ciudad de '{ciudad}':")
+        for key in articulos_enviados.keys():
+            precio = PRECIO_BOTELLA if key == "1334" else PRECIO_VASO
+            if key == "568":
+                print(f"\n\t\t({articulos_enviados[key]['cantidad']}) vasos x ${precio} usd c/u")
+            else:
+                print(f"\n\t\t({articulos_enviados[key]['cantidad']}) botellas x ${precio} usd c/u")
+            print(f"\t\tSubtotal --- ${articulos_enviados[key]['bruto']} usd")
+            print(f"\t\tDescuento -- {articulos_enviados[key]['descuento']}%")
+            print(f"\t\t{'-' * 30}")
+            print(f"\t\tTOTAL ------ ${articulos_enviados[key]['neto']} usd")
+    else:
+        print(f"\n\t\tNo se ha envíado ningún artículo a {ciudad}.")
+
+
+def obtener_valor_total_por_ciudad(_pedidos: dict, ciudad: str):
     articulos_enviados: dict = {}
     for k1 in _pedidos.keys():
         if _pedidos[k1]["enviado"] and (_pedidos[k1]["ciudad"].upper() == ciudad.upper()):
             productos = _pedidos[k1]["productos"]
+            descuento = _pedidos[k1]["descuento"]
             for k2 in productos.keys():
                 colores = productos[k2]
+                precio = PRECIO_BOTELLA if k2 == "1334" else PRECIO_VASO
                 for k3 in colores.keys():
+                    cantidad = colores[k3]["cantidad"]
                     if k2 not in articulos_enviados.keys():
                         articulos_enviados[k2] = {
-                            "cantidad": int(colores[k3]["cantidad"]),
-                            "valor": (float(info[k2]["precio"]) * int(colores[k3]["cantidad"])) * ((100 - int(colores[k3]["descuento"]))/100)
+                            "cantidad": cantidad,
+                            "descuento": descuento,
+                            "bruto": float(precio * cantidad),
+                            "neto": (precio * cantidad) * (100 - descuento) / 100
                         }
                     else:
                         item = articulos_enviados[k2]
-                        item["cantidad"] += int(colores[k3]["cantidad"])
-                        item["valor"] += (float(info[k2]["precio"]) * int(colores[k3]["cantidad"])) * ((100 - int(colores[k3]["descuento"]))/100)
-    print(f"\n\t\t\tSe enviaron los siguientes artículos a la ciudad de '{ciudad}':")
-    for key in articulos_enviados.keys():
-        if key == "568":
-            print(f"\n\t\tVasos: {articulos_enviados[key]['cantidad']}")
-        else:
-            print(f"\n\t\tBotellas: {articulos_enviados[key]['cantidad']}")
-        print(f"\n\t\tPrecio total: ${articulos_enviados[key]['valor']} usd")
+                        item["cantidad"] += cantidad
+                        item["bruto"] += float(precio * cantidad)
+                        item["neto"] += (precio * cantidad) * (100 - descuento) / 100
+
+    imprimir_total(articulos_enviados, ciudad)
 
 
 pedidos = cargar_pedidos()
