@@ -200,6 +200,36 @@ def obtener_fecha_valida() -> str:
     return fecha
 
 
+def agregar_nuevos_articulos(productos: dict) -> None:
+    """Permite agregar contínuamente artículos.
+
+    Args:
+          productos (dict): Diccionario que contiene la información de productos: código, color y cantidad.
+    """
+    opcion: str = ''
+    while opcion != 'N':
+        codigo, opcion_articulo = obtener_articulo_valido()
+        color = obtener_color_valido(opcion_articulo)
+        cantidad = obtener_valor_positivo("Cantidad")
+
+        if codigo not in productos.keys():
+            productos[codigo] = {
+                color: {
+                    "cantidad": cantidad
+                }
+            }
+        else:
+            items: dict = productos[codigo]
+            if color not in items.keys():
+                items[color] = {
+                    "cantidad": cantidad
+                }
+            else:
+                print(
+                    f"\n\t\tPara el artículo cod-{codigo} ya fue ingresado el color {color}. Si desea, después puede modificar el pedido.")
+        opcion = input("\n\tDesea agregar otro artículo? [S/N]  ").upper()
+
+
 def cargar_productos() -> dict:
     """Permite ingresar continuamente artículos hasta que el usuario lo indique.
 
@@ -207,24 +237,7 @@ def cargar_productos() -> dict:
         dict: Un diccionario que representa la cantidad de productos ingresados por color.
     """
     productos: dict = {}
-    opcion: str = ''
-    while opcion != 'N':
-        codigo, opcion_articulo = obtener_articulo_valido()
-        color = obtener_color_valido(opcion_articulo)
-        cantidad = obtener_valor_positivo("Cantidad")
-
-        if codigo in productos.keys():
-            items = productos[codigo]
-            items[color] = {
-                "cantidad": cantidad
-            }
-        else:
-            productos[codigo] = {
-                color: {
-                    "cantidad": cantidad
-                }
-            }
-        opcion = input("\n\tDesea agregar otro artículo? [S/N]  ").upper()
+    agregar_nuevos_articulos(productos)
     return productos
 
 
@@ -248,7 +261,8 @@ def crear_pedido(_pedidos: dict) -> None:
         "ciudad": ciudad,
         "provincia": provincia,
         "productos": productos,
-        "descuento": descuento
+        "descuento": descuento,
+        "enviado": False
     }
     print("\n\t\tNuevo pedido agregado correctamente.")
 
@@ -327,17 +341,13 @@ def agregar_color(colores: dict, id_articulo: str) -> None:
         }
 
 
-def modificar_articulos(_pedidos: dict, nro_pedido: str) -> None:
-    """Muestra los artículos actuales para determinado pedido con la posibilidad de modificarlos.
+def modificar_propiedades_articulos(productos: dict) -> None:
+    """Permite modificar las propiedades de un articulo particular: color y cantidad.
 
     Args:
-        _pedidos (dict): Diccionario que contiene la estructura base de los pedidos.
-        nro_pedido (str): Identificador del pedido
+        productos (dict): Diccionario con la información de los artículos actualmente cargados.
     """
-    print("\n\t\tArtículos actuales: ")
-    productos: dict = _pedidos[nro_pedido]['productos']
-    print(json.dumps(productos, indent=4, ensure_ascii=False))
-    codigo: str = input("Ingrese el código del producto a modificar: ")
+    codigo: str = input("\n\tIngrese el código del producto a modificar: ")
     if codigo in productos.keys():
         id_articulo: str = "1" if codigo == "1334" else "2"
         opcion: str = ''
@@ -356,6 +366,32 @@ def modificar_articulos(_pedidos: dict, nro_pedido: str) -> None:
                 print("\n\t\tIngrese una opción válida.")
     else:
         print("\n\t\tNo existe un artículo con ese código.")
+
+
+def modificar_articulos(_pedidos: dict, nro_pedido: str) -> None:
+    """Muestra los artículos actuales para determinado pedido con la posibilidad de modificarlos.
+
+    Args:
+        _pedidos (dict): Diccionario que contiene la estructura base de los pedidos.
+        nro_pedido (str): Identificador del pedido
+    """
+    accion: str = ''
+    while accion != '4':
+        accion = leer_opcion(["Agregar artículo", "Modificar artículo", "Eliminar articulo", "Salir"])
+        print("\n\t\tArtículos actuales: ")
+        productos: dict = _pedidos[nro_pedido]['productos']
+        print(json.dumps(productos, indent=4, ensure_ascii=False))
+        if accion == '1':
+            agregar_nuevos_articulos(productos)
+        elif accion == '2':
+            modificar_propiedades_articulos(productos)
+        elif accion == '3':
+            codigo, _ = obtener_articulo_valido()
+            if codigo in productos.keys():
+                del productos[codigo]
+                print(f"\n\t\tSe eliminó el artículo {codigo}.")
+            else:
+                print("\n\t\tNo existe un artículo con ese código.")
 
 
 def modificar_pedido(_pedidos: dict) -> None:
