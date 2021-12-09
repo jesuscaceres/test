@@ -20,41 +20,41 @@ def cargar_pedidos() -> dict:
         lector = csv.reader(archivo_csv, delimiter=',')
         lista_pedidos = list(lector)
 
-        pedidos_archivo: dict = {}
-        for indice in range(1, len(lista_pedidos)):
-            registro_actual: list = lista_pedidos[indice]
-            nro_pedido: str = registro_actual[0]
-            if nro_pedido not in pedidos_archivo.keys():
-                pedidos_archivo[nro_pedido]: dict = {
-                    "fecha": registro_actual[1],
-                    "cliente": registro_actual[2],
-                    "ciudad": str(registro_actual[3]),
-                    "provincia": str(registro_actual[4]),
-                    "productos": {
-                        registro_actual[5]: {
-                            str(registro_actual[6]).lower(): {
-                                "cantidad": int(registro_actual[7])
-                            }
-                        }
-                    },
-                    "descuento": float(registro_actual[8]),
-                    "enviado": False
-                }
-            else:
-                productos: dict = pedidos_archivo[str(nro_pedido)]["productos"]
-                codigo: str = registro_actual[5]
-                if codigo in productos.keys():
-                    items: dict = productos[codigo]
-                    items[str(registro_actual[6]).lower()] = {
-                        "cantidad": int(registro_actual[7])
-                    }
-                else:
-                    productos[codigo] = {
+    pedidos_archivo: dict = {}
+    for indice in range(1, len(lista_pedidos)):
+        registro_actual: list = lista_pedidos[indice]
+        nro_pedido: str = registro_actual[0]
+        if nro_pedido not in pedidos_archivo.keys():
+            pedidos_archivo[nro_pedido]: dict = {
+                "fecha": registro_actual[1],
+                "cliente": registro_actual[2],
+                "ciudad": str(registro_actual[3]),
+                "provincia": str(registro_actual[4]),
+                "productos": {
+                    registro_actual[5]: {
                         str(registro_actual[6]).lower(): {
                             "cantidad": int(registro_actual[7])
                         }
                     }
-        return pedidos_archivo
+                },
+                "descuento": float(registro_actual[8]),
+                "enviado": False
+            }
+        else:
+            productos: dict = pedidos_archivo[str(nro_pedido)]["productos"]
+            codigo: str = registro_actual[5]
+            if codigo in productos.keys():
+                items: dict = productos[codigo]
+                items[str(registro_actual[6]).lower()] = {
+                    "cantidad": int(registro_actual[7])
+                }
+            else:
+                productos[codigo] = {
+                    str(registro_actual[6]).lower(): {
+                        "cantidad": int(registro_actual[7])
+                    }
+                }
+    return pedidos_archivo
 
 
 def leer_opcion(opciones: list[str]) -> str:
