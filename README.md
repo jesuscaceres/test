@@ -18,50 +18,49 @@ Según las opiniones de todos, vemos si la dejamos así o cambiamos. De esta for
 
 ```json
 {
-  "1": {
-    "fecha": "01/11/2021",
-    "cliente": "Juan Alvarez",
-    "ciudad": "Villa María",
-    "provincia": "Córdoba",
-    "productos": {
-      "568": {
-        "azul": {
-          "cantidad": "12",
-          "descuento": "5"
+    "1": {
+        "fecha": "01/11/2021",
+        "cliente": "Juan Alvarez",
+        "ciudad": "Villa María",
+        "provincia": "Córdoba",
+        "productos": {
+            "1334": {
+                "azul": {
+                    "cantidad": 36
+                },
+                "amarillo": {
+                    "cantidad": 12
+                }
+            },
+            "568": {
+                "azul": {
+                    "cantidad": 12
+                },
+                "negro": {
+                    "cantidad": 6
+                }
+            }
         },
-        "negro": {
-          "cantidad": "6",
-          "descuento": "5"
-        }
-      },
-      "1334": {
-        "azul": {
-          "cantidad": "36",
-          "descuento": "5"
+        "descuento": 5.0,
+        "enviado": false
+    },
+    "2": {
+        "fecha": "01/11/2021",
+        "cliente": "Carlos Rodriguez",
+        "ciudad": "Parana",
+        "provincia": "Santa Fe",
+        "productos": {
+            "1334": {
+                "rojo": {
+                    "cantidad": 5
+                },
+                "negro": {
+                    "cantidad": 5
+                }
+            }
         },
-        "amarillo": {
-          "cantidad": "12",
-          "descuento": "5"
-        }
-      }
+        "descuento": 0.0,
+        "enviado": false
     }
-  },
-  "2": {
-    "fecha": "01/11/2021",
-    "cliente": "Carlos Rodriguez",
-    "ciudad": "Parana",
-    "provincia": "Santa Fe",
-    "productos": {
-      "1334": {
-        "rojo": {
-          "cantidad": "5",
-          "descuento": "0"
-        },
-        "negro": {
-          "cantidad": "5",
-          "descuento": "0"
-        }
-      }
-    }
-  }
+}
 ```
